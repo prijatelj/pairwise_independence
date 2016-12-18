@@ -209,7 +209,7 @@ public class LogData{
      * @param   sc      Scanner used to read the log file
      * @param   test    TestData object being added to
      *
-     * TODO: Appropriately handle the sub tree data of Event Handlers
+     * TODO: Appropriately handle the hierarchy of data of Event Handlers
      * TODO May lead to error if there exists any EventDrivers that starts with 
      *      "Analysis"
      */
@@ -293,7 +293,13 @@ public class LogData{
                 break;
         } while (!line.isEmpty() );
     }
-
+    
+    /**
+     * Prints out the entire Log's data in order, as seen in the format of the
+     * actual log.
+     *
+     * EventDrivers will obviously be incorrect due to the above todo.
+     */
     public void print(){
         System.out.println("\nLog: " + name);
         for (int i = 0; i < tests.size(); i++){
