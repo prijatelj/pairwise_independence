@@ -154,22 +154,42 @@ class PairwiseIndependence{
     private static double twoPorportionZTest(double i, double iNot, 
             double j, double jNot, double iGivenj, double iGivenNotj,
             double T){
-        if (i == 0 || j == 0){
-            return Double.MAX_VALUE;
-        }
-        System.out.println("i:" + i + " iNot:"+ iNot +
+        /* View Parameters Given
+        System.out.println("\ni:" + i + " iNot:"+ iNot +
             " j:" + j + " jNot:" + jNot + " iGivenj:" + iGivenj +
             " iGivenNotj:" + iGivenNotj + " T:" +T);
+        */
+        /*
+        if (i == 0 || j == 0 || iNot == 0 || jNot == 0){
+            return Double.MAX_VALUE; // Unable to Compute.
+        }
+        //*/
+
+        /*
+         * Currently fudges the numbers by adding 1 to both i, iNot, j,
+         * jNot, iGivenj, and iGivenNotj. Also adds 2 to T. This will only
+         * distort experiments with low number of tests, large test numbers
+         * should be generally unaffected.
+         *
+         * TODO Figure out how to properly handle 100% success and failure
+         * in the results of a file. Discarding 100% failues makes sense,
+         * due to that method being obviously terrible and useless, but if
+         * we were to find a perfect method, then should it too be discarded
+         * from independence testing? (This is a divide by Zero problem)
+         */
+        i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
+
         double numerator = (iGivenj / j) - (iGivenNotj / jNot);
-        double denominator = Math.sqrt((i/T) * (iNot/T) * ((1/j)
-            + (1/jNot)));
-        System.out.println(numerator + " " + denominator);
+        double denominator = Math.sqrt( ((i*iNot)/T) * ((1/j) + (1/jNot)));
+        //System.out.println(numerator + " " + denominator);
+        
         return numerator/denominator;
     }
 
     public static void main(String[] args){
-        //*
-        double[][] m = process (new MultiLog("sml", "yep", true));
+        
+        MultiLog ml = new MultiLog("sml", "Group Experiement", true);
+        double[][] m = process (ml);
     
         for (int i = 0; i < m.length; i++){
             for (int j = 0; j < m[i].length; j++){
@@ -177,25 +197,5 @@ class PairwiseIndependence{
             }
             System.out.println();
         }
-        //*/
-        /*/
-        MultiLog m = new MultiLog("suffer");
-        m.print();
-        System.out.println("Size = " + m.logs.size());
-        //*
-        /*
-        try{
-            //LogData l = new LogData("Greek Analysis (topic 1 -> topic 2Char 4-grams2016-12-15.txt");
-            //LogData l = new LogData("suffer", true);
-            l.print();
-        }
-        catch (InvalidLogFileType | InvalidLogStructure | NotADirectory
-                e) {
-            // TODO figure out if its best to use error handlers or return
-            // boolean value from LogData stating if everything is alright 
-            // or not.
-            System.out.println("TODO: handle custom errors appropriately!");
-        }
-        //*/
     }
 }
