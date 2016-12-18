@@ -158,7 +158,7 @@ class PairwiseIndependence{
     private static double twoPorportionZTest(double i, double iNot, 
             double j, double jNot, double iGivenj, double iGivenNotj,
             double T){
-        //* View Parameters Given
+        /* View Parameters Given
         System.out.println("\ni:" + i + " iNot:"+ iNot +
             " j:" + j + " jNot:" + jNot + " iGivenj:" + iGivenj +
             " iGivenNotj:" + iGivenNotj + " T:" +T);
@@ -181,11 +181,11 @@ class PairwiseIndependence{
          * we were to find a perfect method, then should it too be discarded
          * from independence testing? (This is a divide by Zero problem)
          */
-        //i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
+        i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
 
         double numerator = (iGivenj / j) - (iGivenNotj / jNot);
         double denominator = Math.sqrt( ((i*iNot)/T) * ((1/j) + (1/jNot)));
-        System.out.println(numerator + " " + denominator);
+        //System.out.println(numerator + " " + denominator);
         
         return numerator/denominator;
     }
@@ -197,7 +197,7 @@ class PairwiseIndependence{
     
         for (int i = 0; i < m.length; i++){
             for (int j = 0; j < m[i].length; j++){
-                System.out.printf("%f ", m[i][j]);
+                System.out.printf("%e ", m[i][j]);
             }
             System.out.println();
         }
