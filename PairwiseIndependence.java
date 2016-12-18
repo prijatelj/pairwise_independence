@@ -47,6 +47,7 @@ class PairwiseIndependence{
         int[] incorrect = new int[ml.logs.size()];
         int[] correct = new int[ml.logs.size()];
         boolean[] checked = new boolean[ml.logs.size()];
+        int iGivenj = 0, iGivenNotj = 0;
 
         for (int i = 0; i < ml.logs.size(); i++){ // L
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
@@ -54,7 +55,9 @@ class PairwiseIndependence{
                     pwIndependence[i][j] = Double.MAX_VALUE;
                     continue;
                 }
-                int iGivenj = 0, iGivenNotj = 0;
+                
+                iGivenj = 0; iGivenNotj = 0;
+                
                 if(!checked[i] && !checked[j]){
                     // Assumes Test size for i and j are equal
                     for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
@@ -72,12 +75,11 @@ class PairwiseIndependence{
                         checked[j] = true;
                         if (isICorrectGivenJ(ml, i, j, t)){
                             iGivenj++;
-                        } else {
+                        } else if (isICorrectGivenNotJ(ml, i, j, t)){
                             iGivenNotj++;
                         }
                     }
-                }
-                else if (!checked[i]){
+                } else if (!checked[i]){
                     for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
                         if (isCorrect(ml, i, t)){
                             correct[i]++;
@@ -87,12 +89,11 @@ class PairwiseIndependence{
                         checked[i] = true;
                         if (isICorrectGivenJ(ml, i, j, t)) {
                             iGivenj++;
-                        } else {
+                        } else if (isICorrectGivenNotJ(ml, i, j, t)){
                             iGivenNotj++;
                         }
                     }
-                }
-                else if (!checked[j]){
+                } else if (!checked[j]){
                     for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
                         if (isCorrect(ml, j, t)){
                             correct[j]++;
@@ -102,16 +103,15 @@ class PairwiseIndependence{
                         checked[j] = true;
                         if (isICorrectGivenJ(ml, i, j, t)){
                             iGivenj++;
-                        } else {
+                        } else if (isICorrectGivenNotJ(ml, i, j, t)){
                             iGivenNotj++;
                         }
                     }
-                }
-                else{
+                } else{
                     for (int t = 0; t < ml.logs.get(j).tests.size(); t++){
                         if (isICorrectGivenJ(ml, i, j, t)){
                             iGivenj++;
-                        } else {
+                        } else if (isICorrectGivenNotJ(ml, i, j, t)){
                             iGivenNotj++;
                         }
                     }
@@ -131,13 +131,17 @@ class PairwiseIndependence{
     private static boolean isCorrect(MultiLog ml, int i, int t){
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
-        //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
+        System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
         return s1[1].equals(s2);
     }
 
     private static boolean isICorrectGivenJ(MultiLog ml, int i, int j,
             int t){
-        return isCorrect(ml, i, t) == isCorrect(ml, j, t);
+        return isCorrect(ml, i, t) && isCorrect(ml, j, t);
+    }
+    private static boolean isICorrectGivenNotJ(MultiLog ml, int i, int j,
+            int t){
+        return isCorrect(ml, i, t) && !isCorrect(ml, j, t);
     }
 
     /**
@@ -154,11 +158,11 @@ class PairwiseIndependence{
     private static double twoPorportionZTest(double i, double iNot, 
             double j, double jNot, double iGivenj, double iGivenNotj,
             double T){
-        /* View Parameters Given
+        //* View Parameters Given
         System.out.println("\ni:" + i + " iNot:"+ iNot +
             " j:" + j + " jNot:" + jNot + " iGivenj:" + iGivenj +
             " iGivenNotj:" + iGivenNotj + " T:" +T);
-        */
+        //*/
         /*
         if (i == 0 || j == 0 || iNot == 0 || jNot == 0){
             return Double.MAX_VALUE; // Unable to Compute.
@@ -177,11 +181,11 @@ class PairwiseIndependence{
          * we were to find a perfect method, then should it too be discarded
          * from independence testing? (This is a divide by Zero problem)
          */
-        i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
+        //i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
 
         double numerator = (iGivenj / j) - (iGivenNotj / jNot);
         double denominator = Math.sqrt( ((i*iNot)/T) * ((1/j) + (1/jNot)));
-        //System.out.println(numerator + " " + denominator);
+        System.out.println(numerator + " " + denominator);
         
         return numerator/denominator;
     }
@@ -193,7 +197,7 @@ class PairwiseIndependence{
     
         for (int i = 0; i < m.length; i++){
             for (int j = 0; j < m[i].length; j++){
-                System.out.printf("%e ", m[i][j]);
+                System.out.printf("%f ", m[i][j]);
             }
             System.out.println();
         }
