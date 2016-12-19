@@ -60,6 +60,15 @@ class MultiLog{
                             NotADirectory e){
                         continue;
                     }
+                    catch (ResultContainsNaN e){
+                        e.printStackTrace();
+                        continue;
+                        /*
+                         * TODO by catching this error, do I immediately stop
+                         * the creation of that log? If so good, otherwise,
+                         * need to delete or overwrite that log form logs.
+                         */
+                    }
                 }
             } else {
                 for (final File file : mlDir.listFiles()){
@@ -70,6 +79,15 @@ class MultiLog{
                     catch (InvalidLogFileType | InvalidLogStructure | 
                             NotADirectory e){
                         continue;
+                    }
+                    catch (ResultContainsNaN e){
+                        e.printStackTrace();
+                        continue;
+                        /*
+                         * TODO by catching this error, do I immediately stop
+                         * the creation of that log? If so good, otherwise,
+                         * need to delete or overwrite that log form logs.
+                         */
                     }
                 }
             }

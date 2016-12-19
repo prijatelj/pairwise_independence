@@ -41,12 +41,15 @@ class PairwiseIndependence{
          * correct          stores how many correct for that log
          * checked          indicates if the Log has been checked by correct
          *                      and incorrect.
+         * ignore           each log has a boolean value of to ignore or not in 
+         *                      parallel with it. Ignore if contains NaN results
          */
         double[][] pwIndependence = 
             new double[ml.logs.size()][ml.logs.size()];
         int[] incorrect = new int[ml.logs.size()];
         int[] correct = new int[ml.logs.size()];
         boolean[] checked = new boolean[ml.logs.size()];
+        boolean[] ignore = new boolean[ml.logs.size()];
         int iGivenj = 0, iGivenNotj = 0;
 
         for (int i = 0; i < ml.logs.size(); i++){ // L
@@ -125,14 +128,17 @@ class PairwiseIndependence{
     }
 
     /**
-     * Checks if the first placed doc if it matches correct author
-     * TODO This is only intended for the JGAAP 
+     * Checks if the first placed doc if it matches correct author.
+     * @return Returns true iff top most document author matches correct author
+     *          and there is no tie for first place. Otherwise, false.
      */
     private static boolean isCorrect(MultiLog ml, int i, int t){
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
         //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
-        return s1[1].equals(s2);
+        return s1[1].equals(s2) && 
+            ml.logs.get(i).tests.get(t).results.get(0).rank != 
+            ml.logs.get(i).tests.get(t).results.get(1).rank;
     }
 
     private static boolean isICorrectGivenJ(MultiLog ml, int i, int j,
@@ -205,5 +211,7 @@ class PairwiseIndependence{
             System.out.println();
         }
         //*/
+
+        System.out.println("size = " + m.length + " by " + m[0].length);
     }
 }

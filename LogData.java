@@ -11,12 +11,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LogData{
-    public class Pair{
+    public class Tuple{
+        public int rank;
         public String author;
         public double value;
-        public Pair(){}
+        public Tuple(){}
 
-        public Pair(String author, double value){
+        public Tuple(int rank, String author, double value){
+            this.rank = rank;
             this.author = author;
             this.value = value;
         }
@@ -36,7 +38,7 @@ public class LogData{
         public ArrayList <String> canonicizers;
         public ArrayList <String> eventDrivers;
         public ArrayList <String> analysis;
-        public ArrayList <Pair> results;
+        public ArrayList <Tuple> results;
         public TestData(){}
         
         public TestData (String docName){
@@ -53,7 +55,8 @@ public class LogData{
 
     public LogData(){}
     public LogData(String logFilePath)
-            throws InvalidLogFileType, InvalidLogStructure, NotADirectory{
+            throws InvalidLogFileType, InvalidLogStructure, NotADirectory,
+            ResultContainsNaN{
         this(logFilePath, false);
     }
     
@@ -66,7 +69,8 @@ public class LogData{
      * @param   isDir       True if given path is to a directory, file otherwise
      */
     public LogData(String filePath, boolean isDir)
-            throws InvalidLogFileType, InvalidLogStructure, NotADirectory{
+            throws InvalidLogFileType, InvalidLogStructure, NotADirectory,
+            ResultContainsNaN{
         try{
             if(isDir){
                 File dir = new File(filePath);
@@ -89,6 +93,11 @@ public class LogData{
                         e.printStackTrace();
                         continue;
                     }
+                    catch (ResultContainsNaN e){
+                        System.err.println("Error: " + logDir.getPath() +
+                            " contains test results with a score of NaN");
+                        throw e;
+                    }
                 }
             } else {
                 // TODO fix weak file type check
@@ -104,7 +113,14 @@ public class LogData{
                 }
                
                 name = logFile.getName();
-                parseBegin(logFile);
+                try{
+                    parseBegin(logFile);
+                }
+                catch (ResultContainsNaN e){
+                    System.err.println("Error: " + logFile.getPath() +
+                        " contains test results with a score of NaN");
+                    throw e;
+                }
             }
         }
         catch (InvalidLogFileType e){
@@ -127,7 +143,7 @@ public class LogData{
      * @param   logFile Log file to be parsed.
      */
     private void parseBegin(File logFile)
-            throws InvalidLogFileType, InvalidLogStructure{
+            throws InvalidLogFileType, InvalidLogStructure, ResultContainsNaN{
         try{
             Scanner sc = new Scanner(logFile);
             String line;
@@ -182,7 +198,7 @@ public class LogData{
      *      "EventDrivers"
      */
     private void parseCanonicizer(Scanner sc, TestData test) 
-            throws IOException, InvalidLogStructure{
+            throws IOException, InvalidLogStructure, ResultContainsNaN{
         
         String line = (sc.nextLine()).trim();
         
@@ -221,7 +237,7 @@ public class LogData{
      *      "Analysis"
      */
     private void parseEventDrivers(Scanner sc, TestData test) 
-            throws IOException, InvalidLogStructure{
+            throws IOException, InvalidLogStructure, ResultContainsNaN{
 
         String line = (sc.nextLine()).trim();
         
@@ -253,7 +269,7 @@ public class LogData{
      * @param   test    TestData object being added to
      */
     private void parseAnalysis(Scanner sc, TestData test) 
-            throws IOException, InvalidLogStructure{
+            throws IOException, InvalidLogStructure, ResultContainsNaN{
         
         String line = (sc.nextLine()).trim();
         
@@ -297,14 +313,21 @@ public class LogData{
      * @param   test    TestData object being added to
      */
     private void parseResults(Scanner sc, TestData test, String line)
-            throws IOException, InvalidLogStructure{
+            throws IOException, InvalidLogStructure, ResultContainsNaN{
         
         String[] strArr;
         do{
             // tokenize the content. 2nd token is author name, 3rd prob value
             strArr = line.split(" ");
-            test.results.add(new Pair(strArr[1],
-                Double.parseDouble(strArr[2])));
+            if (strArr[2].equals("NaN") || strArr[2].equals("Infinity")){
+                // TODO Check if strArr[2] result value is NaN, Throw Exception!
+                throw new ResultContainsNaN();
+            }
+            test.results.add(new Tuple(
+                Integer.parseInt(strArr[0].substring(0, strArr[0].length()-1)),
+                strArr[1],
+                Double.parseDouble(strArr[2])
+                ));
 
             if (sc.hasNextLine())
                 line = (sc.nextLine()).trim();
