@@ -71,20 +71,22 @@ public class LogData{
             if(isDir){
                 File dir = new File(filePath);
                 if (!dir.isDirectory()){
-                    throw new NotADirectory();
+                    throw new NotADirectory("Provided file path is not to "
+                        + "directory");
                 }
                 name = dir.getName();
                 for (final File logDir : dir.listFiles()){
                     try{
                         // TODO fix weak file type check
                         if (logDir.isDirectory())
-                            throw new NotADirectory();
+                            throw new NotADirectory("");
                         parseBegin(logDir);
                     }
                     catch (InvalidLogFileType | InvalidLogStructure | 
                             NotADirectory e) {
                         System.err.println("Error: " + logDir.getPath() + 
                         " is not a valid log file: Continuing with test batch");
+                        e.printStackTrace();
                         continue;
                     }
                 }
@@ -96,9 +98,11 @@ public class LogData{
                     throw new InvalidLogFileType();
 
                 File logFile = new File(filePath);
-                if (logFile.isDirectory())
-                    throw new InvalidLogFileType();
-                
+                if (logFile.isDirectory()){
+                    throw new InvalidLogFileType( logFile.getPath() + 
+                        "File should not be directory");
+                }
+               
                 name = logFile.getName();
                 parseBegin(logFile);
             }
@@ -106,11 +110,13 @@ public class LogData{
         catch (InvalidLogFileType e){
             System.err.println("Error: " + filePath + " is not a valid "+
                 "log file type");
+            e.printStackTrace();
             throw e;
         }
         catch (NotADirectory e) {
             System.err.println("Error: " + filePath + " is not a valid "+
                 "directory");
+            e.printStackTrace();
             throw e;
         }
     }
@@ -160,6 +166,7 @@ public class LogData{
          */
         catch (InvalidLogStructure e){
             System.err.println("Error: Invalid Log Structure or Syntax");
+            e.printStackTrace();
             throw e;
         }
     }
@@ -264,8 +271,20 @@ public class LogData{
         if (line.length() >= 2 && (line.substring(0, 2)).equals("1.")){
             parseResults(sc, test, line);
         } else {
+            System.out.println("\n"+ name);
+            System.out.println(line);
+            System.out.println(sc.hasNextLine());
+            System.out.println(test.questionedDoc);
+            while (sc.hasNextLine()){
+                System.out.println(sc.nextLine());
+            }
+            System.out.println();
             sc.close();
             throw new InvalidLogStructure();
+            /*
+             *  '0.' placement if the all NaN for result, must check if NaN,
+             *  and discard the file appropriately.
+             */
         }
     }
 

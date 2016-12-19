@@ -82,6 +82,7 @@ class MultiLog{
         catch (NotADirectory e){
             System.err.println("Error: " + pathToDir + " is not a valid "+
                 "directory");
+            e.printStackTrace();
         }
     }
 

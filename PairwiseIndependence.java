@@ -131,7 +131,7 @@ class PairwiseIndependence{
     private static boolean isCorrect(MultiLog ml, int i, int t){
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
-        System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
+        //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
         return s1[1].equals(s2);
     }
 
@@ -181,8 +181,11 @@ class PairwiseIndependence{
          * we were to find a perfect method, then should it too be discarded
          * from independence testing? (This is a divide by Zero problem)
          */
-        i++; iNot++; j++; jNot++; iGivenj++; iGivenNotj++; T += 2;
-
+        //*
+        i++; iNot++; j++; jNot++;
+        iGivenj++; iGivenNotj++;
+        T += 2;
+        //*/
         double numerator = (iGivenj / j) - (iGivenNotj / jNot);
         double denominator = Math.sqrt( ((i*iNot)/T) * ((1/j) + (1/jNot)));
         //System.out.println(numerator + " " + denominator);
@@ -191,15 +194,16 @@ class PairwiseIndependence{
     }
 
     public static void main(String[] args){
-        
-        MultiLog ml = new MultiLog("sml", "Group Experiement", true);
+        MultiLog ml = new MultiLog("logs", "Batch Name", false); 
         double[][] m = process (ml);
     
+        /* Print
         for (int i = 0; i < m.length; i++){
             for (int j = 0; j < m[i].length; j++){
                 System.out.printf("%e ", m[i][j]);
             }
             System.out.println();
         }
+        //*/
     }
 }
