@@ -287,14 +287,7 @@ public class LogData{
         if (line.length() >= 2 && (line.substring(0, 2)).equals("1.")){
             parseResults(sc, test, line);
         } else {
-            System.out.println("\n"+ name);
-            System.out.println(line);
-            System.out.println(sc.hasNextLine());
-            System.out.println(test.questionedDoc);
-            while (sc.hasNextLine()){
-                System.out.println(sc.nextLine());
-            }
-            System.out.println();
+            //System.out.println("\n"+ name);
             sc.close();
             throw new InvalidLogStructure();
             /*
