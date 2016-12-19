@@ -287,13 +287,9 @@ public class LogData{
         if (line.length() >= 2 && (line.substring(0, 2)).equals("1.")){
             parseResults(sc, test, line);
         } else {
-            //System.out.println("\n"+ name);
+            //System.out.println("\n"+ name); // May not start with "1."
             sc.close();
             throw new InvalidLogStructure();
-            /*
-             *  '0.' placement if the all NaN for result, must check if NaN,
-             *  and discard the file appropriately.
-             */
         }
     }
 
