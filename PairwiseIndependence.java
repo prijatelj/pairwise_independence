@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.lang.Math;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 class PairwiseIndependence{
     /*
@@ -29,11 +31,12 @@ class PairwiseIndependence{
      * Finds the pairwise independence matrix between all logs provided in
      * the given MultiLog.
 
-     * @param   ml  MultiLog with all logs of exact same test set.
+     * @param   ml      MultiLog with all logs of exact same test set.
+     * @param   export  if true: exports matrix to .csv file; false: no export.
      * @return  2d Double matrix where each row, col pair contains the 
      *          respective independence value.
      */
-    public static double[][] process(MultiLog ml){
+    public static double[][] process(MultiLog ml, boolean export){
         
         /*
          * pwIndependence   2d Matrix of the Z scores results
@@ -52,7 +55,12 @@ class PairwiseIndependence{
         boolean[] ignore = new boolean[ml.logs.size()];
         int iGivenj = 0, iGivenNotj = 0;
 
+        ArrayList <String> logDataNames = new ArrayList <> ();
+
         for (int i = 0; i < ml.logs.size(); i++){ // L
+            
+            logDataNames.add(ml.logs.get(i).name);
+
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
                 if (j == i){
                     pwIndependence[i][j] = Double.MAX_VALUE;
@@ -124,6 +132,11 @@ class PairwiseIndependence{
                     iGivenj, iGivenNotj, ml.logs.get(i).tests.size());
             }
         }
+        
+        if (export){
+            exportCSV(pwIndependence, logDataNames, ml.name);
+        }
+
         return pwIndependence; // TODO Currently returns Z value. Not Prob.
     }
 
@@ -199,9 +212,47 @@ class PairwiseIndependence{
         return numerator/denominator;
     }
 
+    public static void exportCSV(double[][] mat,
+            ArrayList <String> methods, String name){
+        if (mat.length == methods.size() && mat[0].length == methods.size()){
+            try{
+                PrintWriter pw = new PrintWriter(name + ".csv");
+
+                // print header row
+                pw.print(name + ",");
+                for (int i = 0; i < methods.size(); i++){
+                    pw.print(methods.get(i));
+                    if (i < methods.size()-1)
+                        pw.print(",");
+                }
+                pw.println();
+                
+                // Print Matrix
+                for (int i = 0; i < mat.length; i++){ // rows
+                    pw.print(methods.get(i) + ",");
+                    for (int j = 0; j < mat[i].length; j++){
+                        pw.print(mat[i][j]); // May need to swap i & j
+                    if (j < mat[i].length-1)
+                        pw.print(",");
+                    }
+                    pw.println();
+                }
+
+                pw.close();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Number of Method Names (" + methods.size() + 
+            ") does not match the size of the provided array's columns and rows"
+            + "(" + mat.length + ", " + mat[0].length + ")");
+        }
+    }
+
     public static void main(String[] args){
-        MultiLog ml = new MultiLog("logs", "Batch Name", false); 
-        double[][] m = process (ml);
+        MultiLog ml = new MultiLog("logs", "BatchName", false); 
+        double[][] m = process (ml, true);
     
         /* Print
         for (int i = 0; i < m.length; i++){

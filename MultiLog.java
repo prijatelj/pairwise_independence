@@ -71,7 +71,8 @@ class MultiLog{
                     }
                 }
             } else {
-                System.out.println("Number of Files:" + mlDir.listFiles().length);
+                //System.out.println("Number of Files:" +
+                //    mlDir.listFiles().length);
                 for (final File file : mlDir.listFiles()){
                     try{
                         // TODO Need to ensure I do not add nulls at all to logs
