@@ -213,5 +213,16 @@ class PairwiseIndependence{
         //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
+        
+        /*  Test LogData Print Out
+        try{
+            LogData l = new LogData("Experimentsexp # 5-2016-12-18.txt");
+            l.print();
+        }
+        catch (InvalidLogFileType | InvalidLogStructure | ResultContainsNaN |
+                NotADirectory e){
+            e.printStackTrace();
+        }
+        */
     }
 }

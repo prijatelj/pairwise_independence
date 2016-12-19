@@ -36,7 +36,7 @@ public class LogData{
     public class TestData{
         public String questionedDoc;
         public ArrayList <String> canonicizers;
-        public ArrayList <String> eventDrivers;
+        public ArrayList <EventDriver> eventDrivers;
         public ArrayList <String> analysis;
         public ArrayList <Tuple> results;
         public TestData(){}
@@ -47,6 +47,17 @@ public class LogData{
             eventDrivers = new ArrayList <>();
             analysis = new ArrayList <>();
             results = new ArrayList <>();
+        }
+    }
+
+    public class EventDriver{
+        public String name;
+        public ArrayList <String> eventCullers;
+        public EventDriver(){}
+
+        public EventDriver(String name){
+            this.name = name;
+            eventCullers = new ArrayList <> ();
         }
     }
 
@@ -224,7 +235,11 @@ public class LogData{
         }
     }
 
-    
+    private static boolean isEventCuller(String line){
+        return line.length() >= 9 && !(line.substring(9)).isEmpty() &&
+            (line.substring(9)).charAt(0) == ' ' && !(line.length() >= 8 &&
+            (line.substring(0, 8)).equals("Analysis"));
+    }
     /**
      * Parses the EventDriver part of the current test in the log file. Updates
      * the current TestData object in tests.
@@ -239,18 +254,49 @@ public class LogData{
     private void parseEventDrivers(Scanner sc, TestData test) 
             throws IOException, InvalidLogStructure, ResultContainsNaN{
 
-        String line = (sc.nextLine()).trim();
-        
+        // Uses the actual number of spaces to determine hierarchy.
+        String line = sc.nextLine();
+        /*
+         * EventDrivers object? cuz screw ugly potential arraylists?
+         * EventDriver: - name
+         *              - Event Cullers ArrayList <String> ()
+         */
+        //EventDriver ed = new EventDriver(line.trim());
+
         while(!(line.length() >= 8 && (line.substring(0, 8)).equals("Analysis"))
                 && !line.isEmpty()){
-            test.eventDrivers.add(line);
-            if (sc.hasNextLine())
-                line = (sc.nextLine()).trim();
-            else {
+            if (sc.hasNextLine()){ // Event Driver
+                
+                EventDriver ed = new EventDriver(line.trim());
+                if (sc.hasNextLine()){
+                    line = sc.nextLine();
+                    while (isEventCuller(line)
+                            ){// Even Cull
+                        if (line.length() >= 17){
+                        line = line.substring(17);
+                            if (line.charAt(0) == ' '){ // Specific Event Culler
+                                ed.eventCullers.add(line.trim());
+                            }
+                        }
+                        //*
+                        if (sc.hasNextLine()){
+                            line = sc.nextLine();
+                        } else {
+                            throw new InvalidLogStructure();
+                        }
+                        //*/
+                    }
+                } else { throw new InvalidLogStructure(); }
+                test.eventDrivers.add(ed);
+
+            } else {
+                System.out.println(line);
                 sc.close();
                 throw new InvalidLogStructure();
             }
         }
+
+        //System.out.println(line);
         
         if (line.length() >= 8 && (line.substring(0, 8)).equals("Analysis")
                 && sc.hasNextLine()){
@@ -344,7 +390,17 @@ public class LogData{
 
             System.out.println("EventDrivers:");
             for (int j = 0; j < tests.get(i).eventDrivers.size(); j++){
-                System.out.println("\t"+tests.get(i).eventDrivers.get(j));
+                System.out.println("\t"+tests.get(i).eventDrivers.get(j).name);
+                if (!tests.get(i).eventDrivers.get(j).eventCullers.isEmpty()){
+                    System.out.println("\t\tEventCullers:");
+                }
+                for (int k = 0;
+                        k< tests.get(i).eventDrivers.get(j).eventCullers.size();
+                        k++
+                        ){
+                    System.out.println("\t\t\t"+tests.get(i).eventDrivers.
+                        get(j).eventCullers.get(k));
+                }
             }
 
             System.out.println("Analysis:");
