@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.lang.Math;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.File;
 
 class PairwiseIndependence{
     /*
@@ -211,13 +212,33 @@ class PairwiseIndependence{
         
         return numerator/denominator;
     }
-
+    
+    /**
+     * Exports the provided 2d matrix of methods' z scores to .csv file.
+     *
+     * @param   mat     2d matrix of type double: represents z scores
+     * @param   methods ArrayList of the names of the methods in order to
+     *                  match the content in mat.
+     * @param   name    name of the multilog mat was derived from.
+     */
     public static void exportCSV(double[][] mat,
             ArrayList <String> methods, String name){
         if (mat.length == methods.size() && mat[0].length == methods.size()){
             try{
-                PrintWriter pw = new PrintWriter(name + ".csv");
-
+                File csvFile = new File(name + ".csv");
+                PrintWriter pw;
+                if (csvFile.exists()){
+                    if(name.contains("_pwi_")){
+                        int ver = Integer.parseInt(
+                            name.substring(name.lastIndexOf('_') + 1)
+                            );
+                        pw = new PrintWriter(name+"_pwi_"+ (ver+1) +".csv");
+                    } else {
+                        pw = new PrintWriter(name+"_pwi_1.csv");
+                    }
+                } else {
+                   pw = new PrintWriter(name + ".csv");
+                }
                 // print header row
                 pw.print(name + ",");
                 for (int i = 0; i < methods.size(); i++){
@@ -249,7 +270,6 @@ class PairwiseIndependence{
             + "(" + mat.length + ", " + mat[0].length + ")");
         }
     }
-
     public static void main(String[] args){
         MultiLog ml = new MultiLog("logs", "BatchName", false); 
         double[][] m = process (ml, true);
