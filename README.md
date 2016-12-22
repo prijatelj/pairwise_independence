@@ -12,6 +12,7 @@ If you have a directory of directories of logs, then you must pass the String fi
 
 TODO
 --
+* Ensure that the errors in LogData.java and MultiLog.java are handled or thrown appropriately, so that mass batch testing, will continue to process after discarding problem files from the group.
 * Nearly 100% sure there is no incomplete or Null TestData objects added to LogData. Just need a Professional's expertise on whether or not this needs special handleing.
 * Refine Pairwise Independence Statistics
     + Decide on how to handle 100% success and failure files
