@@ -150,6 +150,9 @@ class PairwiseIndependence{
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
         //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
+        if (s2.contains(" ")){ // Author must always be first
+            s2 = (s2.split(" "))[0];
+        }
         return s1[1].equals(s2) && 
             ml.logs.get(i).tests.get(t).results.get(0).rank != 
             ml.logs.get(i).tests.get(t).results.get(1).rank;
@@ -284,6 +287,7 @@ class PairwiseIndependence{
         //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
+        //ml.print();
         
         /*  Test LogData Print Out
         try{

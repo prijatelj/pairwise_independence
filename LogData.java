@@ -73,8 +73,8 @@ public class LogData{
     
     /**
      * Constructs LogData object either from a single given file, or a given
-     * directory known to contain files that have the same test set and have the
-     * exact same test method.
+     * directory known to contain files that have the same test set and have
+     * the exact same test method.
      *
      * @param   logFilePath String of file path to the log file
      * @param   isDir       True if given path is to a directory, file otherwise
@@ -350,10 +350,16 @@ public class LogData{
     private void parseResults(Scanner sc, TestData test, String line)
             throws IOException, InvalidLogStructure, ResultContainsNaN{
         
-        String[] strArr;
+        String[] strArr = new String[3];
         do{
             // tokenize the content. 2nd token is author name, 3rd prob value
-            strArr = line.split(" ");
+            int first = line.indexOf(' '), last = line.lastIndexOf(' ');
+            strArr[0] = line.substring(0, first);
+            strArr[1] = line.substring(first + 1, last);
+            strArr[2] = line.substring(last + 1);
+            
+            //strArr = line.split(" ");
+            
             if (strArr[2].equals("NaN") || strArr[2].equals("Infinity")){
                 // TODO Check if strArr[2] result value is NaN, Throw Exception!
                 throw new ResultContainsNaN();
