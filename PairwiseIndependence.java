@@ -16,6 +16,26 @@ import java.io.IOException;
 import java.io.File;
 
 class PairwiseIndependence{
+    /* TODO
+     * safely handles the partitioning of the process task to avoid
+     * OutOfMemoryError causing crash.
+     */
+    public static void safeProcess(){
+        int numPartitions = 1;
+        boolean run = false;
+        while (run && numPartitions <= 2000){
+            try{
+                for (int part = 0; part < numPartitions; part++){
+                    
+                }
+            } catch(OutOfMemoryError e){
+               numPartitions *= 2;
+            }
+        }
+    }
+
+    public static ArrayList <String> defectFiles = new ArrayList <> ();
+
     /*
      * TODO 
      *
@@ -120,7 +140,7 @@ class PairwiseIndependence{
                         }
                     }
                 } else{
-                    for (int t = 0; t < ml.logs.get(j).tests.size(); t++){
+                    for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
                         if (isICorrectGivenJ(ml, i, j, t)){
                             iGivenj++;
                         } else if (isICorrectGivenNotJ(ml, i, j, t)){
@@ -147,8 +167,14 @@ class PairwiseIndependence{
      *          and there is no tie for first place. Otherwise, false.
      */
     private static boolean isCorrect(MultiLog ml, int i, int t){
+        //System.out.println("file: "+ ml.logs.get(i).name);
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
+        if (s1.length <= 1){
+            if (!defectFiles.contains(ml.logs.get(i).name))
+                defectFiles.add(ml.logs.get(i).name);
+            return false;
+        }
         //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
         if (s2.contains(" ")){ // Author must always be first
             s2 = (s2.split(" "))[0];
@@ -287,6 +313,9 @@ class PairwiseIndependence{
         //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
+
+        for(int i = 0; i < defectFiles.size(); i++)
+            System.out.println(defectFiles.get(i));
         //ml.print();
         
         /*  Test LogData Print Out
