@@ -78,10 +78,14 @@ class PairwiseIndependence{
         int iGivenj = 0, iGivenNotj = 0;
 
         ArrayList <String> logDataNames = new ArrayList <> ();
+        
+        for (int i = 0; i < ml.logs.size(); i++){
+            logDataNames.add(ml.logs.get(i).name);
+        }
 
         for (int i = 0; i < ml.logs.size(); i++){ // L
             
-            logDataNames.add(ml.logs.get(i).name);
+            //logDataNames.add(ml.logs.get(i).name);
 
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
                 if (j == i){
@@ -158,7 +162,10 @@ class PairwiseIndependence{
              * Secure Data by once completed, export CSV
              * Export every log after it has been compared to all other logs
              */
-            
+            if (export) {
+                singletonExportCSV(pwIndependence[i], logDataNames,
+                    ml.name, ml.logs.get(i).name);
+            }
         }
         
         if (export){
@@ -260,8 +267,6 @@ class PairwiseIndependence{
     public static void exportCSV(double[][] mat,
             ArrayList <String> methods, String name){
 
-        System.out.println("Export");
-
         if (mat.length == methods.size() &&
                 mat[0].length == methods.size()){
 
@@ -316,8 +321,81 @@ class PairwiseIndependence{
             "and rows" + "(" + mat.length + ", " + mat[0].length + ")");
         }
     }
+
+    /**
+     * Exports the provided 2d matrix of methods' z scores to .csv file.
+     *
+     * @param   mat     1d matrix of type double: represents z scores
+     * @param   methods ArrayList of the names of the methods in order to
+     *                  match the content in mat.
+     * @param   name    name of the multilog mat was derived from.
+     * @param   method  name of the method that mat applies to.
+     */
+    public static void singletonExportCSV(double[] mat,
+            ArrayList <String> methods, String name, String method){
+
+        if (mat.length == methods.size()){
+            try{
+                File csvFile = new File(name + ".csv");
+                int ver;
+                while (csvFile.exists()){
+                    if(csvFile.getName().contains("_pwi_")){
+                        ver = Integer.parseInt(
+                            csvFile.getName().substring(
+                                csvFile.getName().lastIndexOf('_') + 1,
+                                csvFile.getName().lastIndexOf('.')
+                            )
+                        );
+                        csvFile = new File(name +
+                            "_pwi_" + (ver+1) + ".csv");
+                    } else {
+                        csvFile = new File(name + "_pwi_1.csv");
+                    }
+                }
+                String dir = csvFile.getName().substring(
+                        0, csvFile.getName().lastIndexOf('.')
+                        );
+                File directory = new File(dir);
+                if (!directory.exists()){
+                    directory.mkdir();
+                }
+
+                PrintWriter pw = new PrintWriter( 
+                    dir + File.separator + method + ".csv"
+                    );
+
+                // print header row
+                pw.print(name + ",");
+                for (int i = 0; i < methods.size(); i++){
+                    pw.print(methods.get(i));
+                    if (i < methods.size()-1)
+                        pw.print(",");
+                }
+                pw.println();
+                
+                // Print Matrix Row
+                pw.print(method + ",");
+                for (int j = 0; j < mat.length; j++){
+                    pw.print(mat[j]); // May need to swap i & j
+                if (j < mat.length-1)
+                    pw.print(",");
+                }
+                pw.println();
+
+                pw.close();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Number of Method Names (" + methods.size() +
+            ") does not match the size of the provided array's columns" + 
+            "(" + mat.length + ")");
+        }
+    }
+
     public static void main(String[] args){
-        MultiLog ml = new MultiLog("group", "BatchName", true); 
+        MultiLog ml = new MultiLog("sml", "BatchName", true); 
         double[][] m = process (ml, true);
     
         /* Print
