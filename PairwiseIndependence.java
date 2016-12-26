@@ -65,8 +65,9 @@ class PairwiseIndependence{
          * correct          stores how many correct for that log
          * checked          indicates if the Log has been checked by correct
          *                      and incorrect.
-         * ignore           each log has a boolean value of to ignore or not in 
-         *                      parallel with it. Ignore if contains NaN results
+         * ignore           each log has a boolean value of to ignore or
+         *                  not in parallel with it. Ignore if contains NaN
+         *                  results
          */
         double[][] pwIndependence = 
             new double[ml.logs.size()][ml.logs.size()];
@@ -152,6 +153,12 @@ class PairwiseIndependence{
                     correct[i], incorrect[i], correct[j], incorrect[j],
                     iGivenj, iGivenNotj, ml.logs.get(i).tests.size());
             }
+
+            /*
+             * Secure Data by once completed, export CSV
+             * Export every log after it has been compared to all other logs
+             */
+            
         }
         
         if (export){
@@ -252,22 +259,32 @@ class PairwiseIndependence{
      */
     public static void exportCSV(double[][] mat,
             ArrayList <String> methods, String name){
-        if (mat.length == methods.size() && mat[0].length == methods.size()){
+
+        System.out.println("Export");
+
+        if (mat.length == methods.size() &&
+                mat[0].length == methods.size()){
+
             try{
                 File csvFile = new File(name + ".csv");
-                PrintWriter pw;
-                if (csvFile.exists()){
-                    if(name.contains("_pwi_")){
-                        int ver = Integer.parseInt(
-                            name.substring(name.lastIndexOf('_') + 1)
-                            );
-                        pw = new PrintWriter(name+"_pwi_"+ (ver+1) +".csv");
+                int ver;
+                while (csvFile.exists()){
+                    if(csvFile.getName().contains("_pwi_")){
+                        ver = Integer.parseInt(
+                            csvFile.getName().substring(
+                                csvFile.getName().lastIndexOf('_') + 1,
+                                csvFile.getName().lastIndexOf('.')
+                            )
+                        );
+                        csvFile = new File(name +
+                            "_pwi_" + (ver+1) + ".csv");
                     } else {
-                        pw = new PrintWriter(name+"_pwi_1.csv");
+                        csvFile = new File(name + "_pwi_1.csv");
                     }
-                } else {
-                   pw = new PrintWriter(name + ".csv");
                 }
+
+                PrintWriter pw = new PrintWriter(csvFile);
+
                 // print header row
                 pw.print(name + ",");
                 for (int i = 0; i < methods.size(); i++){
@@ -294,13 +311,13 @@ class PairwiseIndependence{
                 e.printStackTrace();
             }
         } else {
-            System.err.println("Number of Method Names (" + methods.size() + 
-            ") does not match the size of the provided array's columns and rows"
-            + "(" + mat.length + ", " + mat[0].length + ")");
+            System.err.println("Number of Method Names (" + methods.size() +
+            ") does not match the size of the provided array's columns" +
+            "and rows" + "(" + mat.length + ", " + mat[0].length + ")");
         }
     }
     public static void main(String[] args){
-        MultiLog ml = new MultiLog("logs", "BatchName", false); 
+        MultiLog ml = new MultiLog("group", "BatchName", true); 
         double[][] m = process (ml, true);
     
         /* Print
@@ -313,7 +330,8 @@ class PairwiseIndependence{
         //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
-
+        
+        System.out.println("defectFiles = " + defectFiles.size());
         for(int i = 0; i < defectFiles.size(); i++)
             System.out.println(defectFiles.get(i));
         //ml.print();
