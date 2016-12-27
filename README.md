@@ -7,7 +7,10 @@ For determining pairwise independence between methods, call process() from Pairw
 
 To Make a MultiLog object, call new MultiLog("file/path/to/Directory/of/Logs");
 
-If you have a directory of directories of logs, then you must pass the String file path, a string name of the Batch Z Test you are running, and boolean value: true. 
+Full Parameter list is: MultiLog("file/path", "ExperimentName", byDir)
+
+    The First parameter will either be a file path to a directory of logs, or, if byDir is true, then a file path to a directory of directories of logs.
+    If you have a directory of directories of logs, then you must pass the String file path, a string name of the Experiment you are running, and boolean value: true. 
 
 * If a large experiment were to end early via termination or crash, the files saved in the temporary directory will be deleted if the same experiment were to be re-run, due to the names being the same. This is not as much an error in the code, as it is an obvious result from the expected nature of a temporary data storage. These files in this temporary directory ONLY serve as a safeguard for the current instance, nothing more.
 

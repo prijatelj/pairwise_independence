@@ -53,7 +53,6 @@ class MultiLog{
             if (byDir){
                 for (final File file : mlDir.listFiles()){
                     try{
-                        // TODO Need to ensure I do not add nulls at all to logs
                         logs.add(new LogData(file.getPath(), true));
                     }
                     catch (InvalidLogFileType | InvalidLogStructure | 
