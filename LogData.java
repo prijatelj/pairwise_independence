@@ -27,11 +27,11 @@ public class LogData{
     /**
      * Stores all information of a single JGAAP test.
      * 
-     * TODO This object should be the one to process all the data from the file
-     * in its own constructors for each test. Then the LogData strings the tests
-     * together neatly in an ArrayList. If there is an empty line after every
-     * test, this should be implementable. This may not be necessary though, 
-     * only prettier.
+     * TODO This object should be the one to process all the data from the
+     * file in its own constructors for each test. Then the LogData strings 
+     * the tests together neatly in an ArrayList. If there is an empty line 
+     * after every test, this should be implementable. This may not be
+     * necessary though, only prettier.
      */
     public class TestData{
         public String questionedDoc;
@@ -154,7 +154,8 @@ public class LogData{
      * @param   logFile Log file to be parsed.
      */
     private void parseBegin(File logFile)
-            throws InvalidLogFileType, InvalidLogStructure, ResultContainsNaN{
+            throws InvalidLogFileType, InvalidLogStructure,
+            ResultContainsNaN{
         try{
             Scanner sc = new Scanner(logFile);
             String line;
@@ -188,25 +189,25 @@ public class LogData{
             e.printStackTrace();
         }
         /*
-         * TODO The means of handling and rethrowing an error may be incorrect
-         * here.
+         * TODO The means of handling and rethrowing an error may be
+         * incorrect here.
          */
         catch (InvalidLogStructure e){
-            System.err.println("Error: Invalid Log Structure or Syntax");
-            e.printStackTrace();
+            //System.err.println("Error: Invalid Log Structure or Syntax");
+            //e.printStackTrace();
             throw e;
         }
     }
     
     /**
-     * Parses the Canonicizer part of the current test in the log file. Updates
-     * the current TestData object in tests.
+     * Parses the Canonicizer part of the current test in the log file.
+     * Updates the current TestData object in tests.
      *
      * @param   sc      Scanner used to read the log file
      * @param   test    TestData object being added to
      * 
-     * TODO May lead to error if there exists any canonicizer that starts with 
-     *      "EventDrivers"
+     * TODO May lead to error if there exists any canonicizer that starts
+     *  with "EventDrivers"
      */
     private void parseCanonicizer(Scanner sc, TestData test) 
             throws IOException, InvalidLogStructure, ResultContainsNaN{
@@ -241,15 +242,15 @@ public class LogData{
             (line.substring(0, 8)).equals("Analysis"));
     }
     /**
-     * Parses the EventDriver part of the current test in the log file. Updates
-     * the current TestData object in tests.
+     * Parses the EventDriver part of the current test in the log file.
+     * Updates the current TestData object in tests.
      *
      * @param   sc      Scanner used to read the log file
      * @param   test    TestData object being added to
      *
      * TODO: Appropriately handle the hierarchy of data of Event Handlers
-     * TODO May lead to error if there exists any EventDrivers that starts with 
-     *      "Analysis"
+     * TODO May lead to error if there exists any EventDrivers that starts
+     * with "Analysis"
      */
     private void parseEventDrivers(Scanner sc, TestData test) 
             throws IOException, InvalidLogStructure, ResultContainsNaN{
@@ -263,8 +264,10 @@ public class LogData{
          */
         //EventDriver ed = new EventDriver(line.trim());
 
-        while(!(line.length() >= 8 && (line.substring(0, 8)).equals("Analysis"))
-                && !line.isEmpty()){
+        while(!(line.length() >= 8 &&
+                (line.substring(0, 8)).equals("Analysis"))
+                && !line.isEmpty()
+                ){
             if (sc.hasNextLine()){ // Event Driver
                 
                 EventDriver ed = new EventDriver(line.trim());
@@ -274,7 +277,7 @@ public class LogData{
                             ){// Even Cull
                         if (line.length() >= 17){
                         line = line.substring(17);
-                            if (line.charAt(0) == ' '){ // Specific Event Culler
+                            if (line.charAt(0) == ' '){ 
                                 ed.eventCullers.add(line.trim());
                             }
                         }
@@ -340,9 +343,9 @@ public class LogData{
     }
 
     /**
-     * Parses the analyzed results of the current test in the log file. Updates
-     * the current TestData object in tests. The results are in the order 
-     * presented in the file.
+     * Parses the analyzed results of the current test in the log file.
+     * Updates the current TestData object in tests. The results are in the
+     * order presented in the file.
      *
      * @param   sc      Scanner used to read the log file
      * @param   test    TestData object being added to
@@ -352,7 +355,7 @@ public class LogData{
         
         String[] strArr = new String[3];
         do{
-            // tokenize the content. 2nd token is author name, 3rd prob value
+            // tokenize the content. 2nd token = author name, 3rd prob value
             int first = line.indexOf(' '), last = line.lastIndexOf(' ');
             strArr[0] = line.substring(0, first);
             strArr[1] = line.substring(first + 1, last);
@@ -361,7 +364,6 @@ public class LogData{
             //strArr = line.split(" ");
             
             if (strArr[2].equals("NaN") || strArr[2].equals("Infinity")){
-                // TODO Check if strArr[2] result value is NaN, Throw Exception!
                 throw new ResultContainsNaN();
             }
             test.results.add(new Tuple(
