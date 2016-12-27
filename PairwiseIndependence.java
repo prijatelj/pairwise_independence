@@ -58,7 +58,9 @@ class PairwiseIndependence{
      *          respective independence value.
      */
     public static double[][] process(MultiLog ml, boolean export){
-        
+
+        System.out.println("Begin Processing MultiLog");
+        double percentComplete = 0, percentCompletej = 0; 
         /*
          * pwIndependence   2d Matrix of the Z scores results
          * incorrect        stores how many incorrect for that log
@@ -156,7 +158,22 @@ class PairwiseIndependence{
                 pwIndependence[i][j] = twoPorportionZTest(
                     correct[i], incorrect[i], correct[j], incorrect[j],
                     iGivenj, iGivenNotj, ml.logs.get(i).tests.size());
+
+                percentCompletej = ((double)(j) / (double)(ml.logs.size()))
+                    * 100.0;
+                if (percentComplete < 1){
+                    System.out.print("\r");
+                    System.out.printf("Progress: Current Method %d: %.5f%% "
+                        + "Overall: %f%%",
+                         i, percentCompletej, percentComplete);
+                } else {
+                    System.out.printf("Overall Progress: %.5f%%\n",
+                        percentComplete);
+                }
             }
+
+            percentComplete = ((double)(i) / (double)(ml.logs.size()))
+                * 100.0;
 
             /*
              * Secure Data by once completed, export CSV
@@ -395,7 +412,7 @@ class PairwiseIndependence{
     }
 
     public static void main(String[] args){
-        MultiLog ml = new MultiLog("sml", "BatchName", true); 
+        MultiLog ml = new MultiLog("logs", "BatchName", false); 
         double[][] m = process (ml, true);
     
         /* Print
