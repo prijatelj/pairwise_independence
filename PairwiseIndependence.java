@@ -163,11 +163,13 @@ class PairwiseIndependence{
                     * 100.0;
                 if (percentComplete < 1){
                     System.out.print("\r");
-                    System.out.printf("Progress: Current Method %d: %.5f%% "
-                        + "Overall: %f%%",
-                         i, percentCompletej, percentComplete);
+                    System.out.printf(
+                        "Progress: Current Method %d: %.2f %% " +
+                        "Overall: %.2f %%",
+                        i, percentCompletej, percentComplete
+                        );
                 } else {
-                    System.out.printf("Overall Progress: %.5f%%\n",
+                    System.out.printf("Overall Progress: %.2f %%\n",
                         percentComplete);
                 }
             }
