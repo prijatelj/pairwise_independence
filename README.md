@@ -21,4 +21,6 @@ TODO
     + Decide on how to handle 100% success and failure files
 * The Files read in do not read in ascending order, but rather some alpha-numeric method. An example order of reading: 1, 10, 11, 2, 20, 21, 3. Is this a problem?
 * Fix TestData to store the numerical value of NGrams and other numeric information as actual number data.
-
+* Triangular Array for the PairWise Independence, and other optimizatoins.
+* Create single Pairwise class that the Zscore(Independence) and Covariance classes call upon.
+* Adjust the Covariance class to be a correlation class, so that the magnitude of the relation between two methods is more easily interpretable. (just have to find each methods standard deviation)
