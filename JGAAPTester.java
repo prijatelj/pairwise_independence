@@ -39,8 +39,8 @@ public class JGAAPTester {
 	static API jgaap = API.getInstance();
 	static int i = 0;
 	static int k = 0;
-	static String pathString = "H:/Java/workspace/JGAAPMods/logs/";
-	static String expTarget = "H:/Java/workspace/JGAAPMods/logs2/";
+	static String pathString = "H:/Java/workspace/JGAAPMods/logs3/";
+	static String expTarget = "H:/Java/workspace/JGAAPMods/logs3/";
 	static PrintStream sys = System.out;
 	static PrintStream exp;
 
@@ -54,8 +54,8 @@ public class JGAAPTester {
 		//createExperimentCSV(new File("H:/Java/workspace/JGAAPMods/Texts/SciFi"), .2);
 		
 //		BasicConfigurator.configure();
-//
-//		// loadAAACProblem("A");
+////
+////		// loadAAACProblem("A");
 //		exp = new PrintStream((new File(expTarget + "exp.csv")));
 //		exp.println("Experiments");
 //		sanFranciscoMethods();
@@ -98,12 +98,12 @@ public class JGAAPTester {
 		AnalysisDriver smo = new WEKASMO();
 		for (EventDriver ed : eds) {
 			for (DistanceFunction df : dfs) {
-				exp.println("exp # " + (i++) + "-, " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + cd.displayName() + "," + df.displayName() + "," + "H:/Java/workspace/JGAAPMods/Texts/Scifi/load.csv");
+				exp.println(ed.displayName()+"&"+df.displayName() + ", " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + cd.displayName() + "," + df.displayName() + "," + "H:/Java/workspace/JGAAPMods/Texts/Scifi/load.csv");
 			}
 		}
 
 		for (EventDriver ed : eds) {
-				exp.println("exp # " + (i++) + "-, " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + smo.displayName() + "," + "," + "H:/Java/workspace/JGAAPMods/Texts/SciFi/load.csv");
+				exp.println(ed.displayName()+ ", " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + smo.displayName() + "," + "," + "H:/Java/workspace/JGAAPMods/Texts/SciFi/load.csv");
 		}
 
 	}
