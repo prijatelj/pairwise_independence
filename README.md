@@ -24,3 +24,5 @@ TODO
 * Triangular Array for the PairWise Independence, and other optimizatoins.
 * Create single Pairwise class that the Zscore(Independence) and Covariance classes call upon.
 * Adjust the Covariance class to be a correlation class, so that the magnitude of the relation between two methods is more easily interpretable. (just have to find each methods standard deviation)
+* Fix the method calls to be more concise and descriptive
+* Rewrite documentation to be clear and concise.
