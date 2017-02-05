@@ -72,66 +72,101 @@ class Covariance{
         for (int i = 0; i < ml.logs.size(); i++){
             logDataNames.add(ml.logs.get(i).name);
         }
-
-        for (int i = 0; i < ml.logs.size(); i++){ // L
-            
-            totalCorrect = 0;
-
+        
+        for (int i = 0; i < ml.logs.size(); i++){ // L            
+        	for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
+                if (isCorrect(ml, i, t)){
+                    correct[i]++;
+                } 
+        	}
+        }
+        
+        for (int i = 0; i < ml.logs.size(); i++){ // L  
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
-                if (j == i){
+            	if (j == i){
                     pwCovariance[i][j] = 1;
                     continue;
                 }
-                
-                // Assumes Test size for i and j are equal
-                for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
-                    if (isCorrect(ml, i, t)){
-                        correct[i]++;
-                        totalCorrect++;
-                        if (isCorrect(ml, j, t)){
-                            correct[j]++;
-                        }
-                    } else {
-                        if (isCorrect(ml, j, t)){
-                            correct[j]++;
-                            totalCorrect++;
-                        }
-                    }
+            	totalCorrect=0;
+            	
+            	for (int t = 0; t < ml.logs.get(i).tests.size(); t++){                    
+                    if(isCorrect(ml, j, t)&&isCorrect(ml, i, t))
+                    	totalCorrect++;
                 }
+
                 
-                // Find Covariance between Pairs
-                double ex = correct[i] / ml.logs.get(i).tests.size();
-                double ey = correct[j] / ml.logs.get(j).tests.size();
-                double exy = (correct[i] + correct[j]) / totalCorrect;
+                double ex = correct[i] / (double)ml.logs.get(i).tests.size();
+                double ey = correct[j] / (double)ml.logs.get(j).tests.size();
+                double exy = totalCorrect / (double)ml.logs.get(i).tests.size();
                 pwCovariance[i][j] = cov(ex, ey, exy);
-
-                percentCompletej = ((double)(j) / (double)(ml.logs.size()))
-                    * 100.0;
-                if (percentComplete < 1){
-                    System.out.print("\r");
-                    System.out.printf(
-                        "Progress: Current Method %d: %.2f %% " +
-                        "Overall: %.2f %%",
-                        i, percentCompletej, percentComplete
-                        );
-                } else {
-                    System.out.printf("Overall Progress: %.2f %%\n",
-                        percentComplete);
-                }
+                
             }
+        }
+        
+        
+        
+        
+        
+        
 
-            percentComplete = ((double)(i) / (double)(ml.logs.size()))
-                * 100.0;
+//        for (int i = 0; i < ml.logs.size(); i++){ // L
+//        	correct[i]=0;
+//            
+//        	for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
+//                if (isCorrect(ml, i, t)){
+//                    correct[i]++;
+//             
+//                } 
+//        	}
+//
+//            for (int j = 0; j < ml.logs.size(); j++){ // L-1
+//            	correct[j]=0;
+//                if (j == i){
+//                    pwCovariance[i][j] = 1;
+//                    continue;
+//                }
+//                
+//                totalCorrect = 0;
+//                
+//                // Assumes Test size for i and j are equal
+//                for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
+//                    if (isCorrect(ml, j, t)){
+//                            correct[j]++;
+//                            
+//                    }
+//                    
+//                    if(isCorrect(ml, j, t)&&isCorrect(ml, i, t))
+//                    	totalCorrect++;
+//                }
+//                
+//                // Find Covariance between Pairs
+//                double ex = correct[i] / (double)ml.logs.get(i).tests.size();
+//                double ey = correct[j] / (double)ml.logs.get(j).tests.size();
+//                double exy = totalCorrect / (double)Math.pow(ml.logs.get(i).tests.size(),2);
+//                pwCovariance[i][j] = cov(ex, ey, exy);
+//
+//                percentCompletej = ((double)(j) / (double)(ml.logs.size()))
+//                    * 100.0;
+//                if (percentComplete < 1){
+//                    System.out.print("\r");
+//                    System.out.printf(
+//                        "Progress: Current Method %d: %.2f %% " +
+//                        "Overall: %.2f %%",
+//                        i, percentCompletej, percentComplete
+//                        );
+//                } else {
+//                    System.out.printf("Overall Progress: %.2f %%\n",
+//                        percentComplete);
+//                }
+//            }
+//
+//            percentComplete = ((double)(i) / (double)(ml.logs.size()))
+//                * 100.0;
 
             /*
              * Secure Data by once completed, export CSV
              * Export every log after it has been compared to all other logs
              */
-            if (export) {
-                singletonExportCSV(pwCovariance[i], logDataNames,
-                    ml.name, ml.logs.get(i).name);
-            }
-        }
         
         if (export){
             exportCSV(pwCovariance, logDataNames, ml.name);
@@ -147,7 +182,7 @@ class Covariance{
      */
     private static boolean isCorrect(MultiLog ml, int i, int t){
         //System.out.println("file: "+ ml.logs.get(i).name);
-        String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
+        String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.trim().split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
         if (s1.length <= 1){
             if (!defectFiles.contains(ml.logs.get(i).name))
@@ -158,6 +193,7 @@ class Covariance{
         if (s2.contains(" ")){ // Author must always be first
             s2 = (s2.split(" "))[0];
         }
+        
         return s1[1].equals(s2) && 
             ml.logs.get(i).tests.get(t).results.get(0).rank != 
             ml.logs.get(i).tests.get(t).results.get(1).rank;

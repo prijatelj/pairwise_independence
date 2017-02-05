@@ -16,26 +16,6 @@ import java.io.IOException;
 import java.io.File;
 
 class PairwiseIndependence{
-    /* TODO
-     * safely handles the partitioning of the process task to avoid
-     * OutOfMemoryError causing crash.
-     */
-    public static void safeProcess(){
-        int numPartitions = 1;
-        boolean run = false;
-        while (run && numPartitions <= 2000){
-            try{
-                for (int part = 0; part < numPartitions; part++){
-                    
-                }
-            } catch(OutOfMemoryError e){
-               numPartitions *= 2;
-            }
-        }
-    }
-
-    public static ArrayList <String> defectFiles = new ArrayList <> ();
-
     /*
      * TODO 
      *
@@ -58,18 +38,15 @@ class PairwiseIndependence{
      *          respective independence value.
      */
     public static double[][] process(MultiLog ml, boolean export){
-
-        System.out.println("Begin Processing MultiLog");
-        double percentComplete = 0, percentCompletej = 0; 
+        
         /*
          * pwIndependence   2d Matrix of the Z scores results
          * incorrect        stores how many incorrect for that log
          * correct          stores how many correct for that log
          * checked          indicates if the Log has been checked by correct
          *                      and incorrect.
-         * ignore           each log has a boolean value of to ignore or
-         *                  not in parallel with it. Ignore if contains NaN
-         *                  results
+         * ignore           each log has a boolean value of to ignore or not in 
+         *                      parallel with it. Ignore if contains NaN results
          */
         double[][] pwIndependence = 
             new double[ml.logs.size()][ml.logs.size()];
@@ -80,14 +57,10 @@ class PairwiseIndependence{
         int iGivenj = 0, iGivenNotj = 0;
 
         ArrayList <String> logDataNames = new ArrayList <> ();
-        
-        for (int i = 0; i < ml.logs.size(); i++){
-            logDataNames.add(ml.logs.get(i).name);
-        }
 
         for (int i = 0; i < ml.logs.size(); i++){ // L
             
-            //logDataNames.add(ml.logs.get(i).name);
+            logDataNames.add(ml.logs.get(i).name);
 
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
                 if (j == i){
@@ -147,7 +120,7 @@ class PairwiseIndependence{
                         }
                     }
                 } else{
-                    for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
+                    for (int t = 0; t < ml.logs.get(j).tests.size(); t++){
                         if (isICorrectGivenJ(ml, i, j, t)){
                             iGivenj++;
                         } else if (isICorrectGivenNotJ(ml, i, j, t)){
@@ -158,32 +131,6 @@ class PairwiseIndependence{
                 pwIndependence[i][j] = twoPorportionZTest(
                     correct[i], incorrect[i], correct[j], incorrect[j],
                     iGivenj, iGivenNotj, ml.logs.get(i).tests.size());
-
-                percentCompletej = ((double)(j) / (double)(ml.logs.size()))
-                    * 100.0;
-                if (percentComplete < 1){
-                    System.out.print("\r");
-                    System.out.printf(
-                        "Progress: Current Method %d: %.2f %% " +
-                        "Overall: %.2f %%",
-                        i, percentCompletej, percentComplete
-                        );
-                } else {
-                    System.out.printf("Overall Progress: %.2f %%\n",
-                        percentComplete);
-                }
-            }
-
-            percentComplete = ((double)(i) / (double)(ml.logs.size()))
-                * 100.0;
-
-            /*
-             * Secure Data by once completed, export CSV
-             * Export every log after it has been compared to all other logs
-             */
-            if (export) {
-                singletonExportCSV(pwIndependence[i], logDataNames,
-                    ml.name, ml.logs.get(i).name);
             }
         }
         
@@ -200,18 +147,9 @@ class PairwiseIndependence{
      *          and there is no tie for first place. Otherwise, false.
      */
     private static boolean isCorrect(MultiLog ml, int i, int t){
-        //System.out.println("file: "+ ml.logs.get(i).name);
         String s1[] = ml.logs.get(i).tests.get(t).questionedDoc.split(" ");
         String s2 = ml.logs.get(i).tests.get(t).results.get(0).author;
-        if (s1.length <= 1){
-            if (!defectFiles.contains(ml.logs.get(i).name))
-                defectFiles.add(ml.logs.get(i).name);
-            return false;
-        }
         //System.out.println(s1[1] + " ? "+ s2 + " : " + s1[1].equals(s2));
-        if (s2.contains(" ")){ // Author must always be first
-            s2 = (s2.split(" "))[0];
-        }
         return s1[1].equals(s2) && 
             ml.logs.get(i).tests.get(t).results.get(0).rank != 
             ml.logs.get(i).tests.get(t).results.get(1).rank;
@@ -285,30 +223,22 @@ class PairwiseIndependence{
      */
     public static void exportCSV(double[][] mat,
             ArrayList <String> methods, String name){
-
-        if (mat.length == methods.size() &&
-                mat[0].length == methods.size()){
-
+        if (mat.length == methods.size() && mat[0].length == methods.size()){
             try{
                 File csvFile = new File(name + ".csv");
-                int ver;
-                while (csvFile.exists()){
-                    if(csvFile.getName().contains("_pwi_")){
-                        ver = Integer.parseInt(
-                            csvFile.getName().substring(
-                                csvFile.getName().lastIndexOf('_') + 1,
-                                csvFile.getName().lastIndexOf('.')
-                            )
-                        );
-                        csvFile = new File(name +
-                            "_pwi_" + (ver+1) + ".csv");
+                PrintWriter pw;
+                if (csvFile.exists()){
+                    if(name.contains("_pwi_")){
+                        int ver = Integer.parseInt(
+                            name.substring(name.lastIndexOf('_') + 1)
+                            );
+                        pw = new PrintWriter(name+"_pwi_"+ (ver+1) +".csv");
                     } else {
-                        csvFile = new File(name + "_pwi_1.csv");
+                        pw = new PrintWriter(name+"_pwi_1.csv");
                     }
+                } else {
+                   pw = new PrintWriter(name + ".csv");
                 }
-
-                PrintWriter pw = new PrintWriter(csvFile);
-
                 // print header row
                 pw.print(name + ",");
                 for (int i = 0; i < methods.size(); i++){
@@ -335,84 +265,11 @@ class PairwiseIndependence{
                 e.printStackTrace();
             }
         } else {
-            System.err.println("Number of Method Names (" + methods.size() +
-            ") does not match the size of the provided array's columns" +
-            "and rows" + "(" + mat.length + ", " + mat[0].length + ")");
+            System.err.println("Number of Method Names (" + methods.size() + 
+            ") does not match the size of the provided array's columns and rows"
+            + "(" + mat.length + ", " + mat[0].length + ")");
         }
     }
-
-    /**
-     * Exports the provided 2d matrix of methods' z scores to .csv file.
-     *
-     * @param   mat     1d matrix of type double: represents z scores
-     * @param   methods ArrayList of the names of the methods in order to
-     *                  match the content in mat.
-     * @param   name    name of the multilog mat was derived from.
-     * @param   method  name of the method that mat applies to.
-     */
-    public static void singletonExportCSV(double[] mat,
-            ArrayList <String> methods, String name, String method){
-
-        if (mat.length == methods.size()){
-            try{
-                File csvFile = new File(name + ".csv");
-                int ver;
-                while (csvFile.exists()){
-                    if(csvFile.getName().contains("_pwi_")){
-                        ver = Integer.parseInt(
-                            csvFile.getName().substring(
-                                csvFile.getName().lastIndexOf('_') + 1,
-                                csvFile.getName().lastIndexOf('.')
-                            )
-                        );
-                        csvFile = new File(name +
-                            "_pwi_" + (ver+1) + ".csv");
-                    } else {
-                        csvFile = new File(name + "_pwi_1.csv");
-                    }
-                }
-                String dir = csvFile.getName().substring(
-                        0, csvFile.getName().lastIndexOf('.')
-                        );
-                File directory = new File(dir);
-                if (!directory.exists()){
-                    directory.mkdir();
-                }
-
-                PrintWriter pw = new PrintWriter( 
-                    dir + File.separator + method + ".csv"
-                    );
-
-                // print header row
-                pw.print(name + ",");
-                for (int i = 0; i < methods.size(); i++){
-                    pw.print(methods.get(i));
-                    if (i < methods.size()-1)
-                        pw.print(",");
-                }
-                pw.println();
-                
-                // Print Matrix Row
-                pw.print(method + ",");
-                for (int j = 0; j < mat.length; j++){
-                    pw.print(mat[j]); // May need to swap i & j
-                if (j < mat.length-1)
-                    pw.print(",");
-                }
-                pw.println();
-
-                pw.close();
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            }
-        } else {
-            System.err.println("Number of Method Names (" + methods.size() +
-            ") does not match the size of the provided array's columns" + 
-            "(" + mat.length + ")");
-        }
-    }
-
     public static void main(String[] args){
         MultiLog ml = new MultiLog("logs", "BatchName", false); 
         double[][] m = process (ml, true);
@@ -427,11 +284,6 @@ class PairwiseIndependence{
         //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
-        
-        System.out.println("defectFiles = " + defectFiles.size());
-        for(int i = 0; i < defectFiles.size(); i++)
-            System.out.println(defectFiles.get(i));
-        //ml.print();
         
         /*  Test LogData Print Out
         try{
