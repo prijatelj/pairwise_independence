@@ -47,6 +47,7 @@ class Covariance{
         double percentComplete = 0, percentCompletej = 0; 
         /*
          * pwCovariance   2d Matrix of the covariance between pairs
+         * pwCorrelation  2d Matrix of the correlation between pairs
          * 
          * incorrect        stores how many incorrect for that log
          * 
@@ -60,6 +61,9 @@ class Covariance{
          */
         double[][] pwCovariance = 
             new double[ml.logs.size()][ml.logs.size()];
+        double[][] pwCorrelation = 
+            new double[ml.logs.size()][ml.logs.size()];
+        double sigX, sigY;
         int[] incorrect = new int[ml.logs.size()];
         int[] correct = new int[ml.logs.size()];
         boolean[] checked = new boolean[ml.logs.size()];
@@ -85,6 +89,7 @@ class Covariance{
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
             	if (j == i){
                     pwCovariance[i][j] = 1;
+                    pwCorrelation[i][j] = 1;
                     continue;
                 }
             	totalCorrect=0;
@@ -93,14 +98,17 @@ class Covariance{
                     if(isCorrect(ml, j, t)&&isCorrect(ml, i, t))
                     	totalCorrect++;
                 }
-
                 
                 double ex = correct[i] / (double)ml.logs.get(i).tests.size();
                 double ey = correct[j] / (double)ml.logs.get(j).tests.size();
                 // TODO: Figure out with certainty what this denomenator should be.
                 double exy = totalCorrect / (double)ml.logs.get(i).tests.size();
-                pwCovariance[i][j] = cov(ex, ey, exy);
-                
+                //pwCovariance[i][j] = cov(ex, ey, exy);
+
+                // Compute Correlation : std. dev = sqrt(n * P * (1 - P))
+                sigX = Math.sqrt(correct[i] * (1 - ex));
+                sigY = Math.sqrt(correct[j] * (1 - ey));
+                pwCorrelation[i][j] = cov(ex, ey, exy) / (sigX * sigY);
             }
         }
 
@@ -110,10 +118,11 @@ class Covariance{
          */
         
         if (export){
-            exportCSV(pwCovariance, logDataNames, ml.name);
+            exportCSV(pwCorrelation, logDataNames, ml.name);
         }
 
-        return pwCovariance; // TODO Currently returns Z value. Not Prob.
+        //return pwCovariance;
+        return pwCorrelation;
     }
 
     /**
