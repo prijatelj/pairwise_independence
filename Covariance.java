@@ -59,8 +59,8 @@ class Covariance{
          * ignore           each log has a boolean value of to ignore or
          * not in parallel with it. Ignore if contains NaN results
          */
-        double[][] pwCovariance = 
-            new double[ml.logs.size()][ml.logs.size()];
+        //double[][] pwCovariance = 
+        //    new double[ml.logs.size()][ml.logs.size()];
         double[][] pwCorrelation = 
             new double[ml.logs.size()][ml.logs.size()];
         double sigX, sigY;
@@ -88,7 +88,7 @@ class Covariance{
         for (int i = 0; i < ml.logs.size(); i++){ // L  
             for (int j = 0; j < ml.logs.size(); j++){ // L-1
             	if (j == i){
-                    pwCovariance[i][j] = 1;
+                    //pwCovariance[i][j] = 1;
                     pwCorrelation[i][j] = 1;
                     continue;
                 }
