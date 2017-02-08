@@ -97,76 +97,17 @@ class Covariance{
                 
                 double ex = correct[i] / (double)ml.logs.get(i).tests.size();
                 double ey = correct[j] / (double)ml.logs.get(j).tests.size();
+                // TODO: Figure out with certainty what this denomenator should be.
                 double exy = totalCorrect / (double)ml.logs.get(i).tests.size();
                 pwCovariance[i][j] = cov(ex, ey, exy);
                 
             }
         }
-        
-        
-        
-        
-        
-        
 
-//        for (int i = 0; i < ml.logs.size(); i++){ // L
-//        	correct[i]=0;
-//            
-//        	for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
-//                if (isCorrect(ml, i, t)){
-//                    correct[i]++;
-//             
-//                } 
-//        	}
-//
-//            for (int j = 0; j < ml.logs.size(); j++){ // L-1
-//            	correct[j]=0;
-//                if (j == i){
-//                    pwCovariance[i][j] = 1;
-//                    continue;
-//                }
-//                
-//                totalCorrect = 0;
-//                
-//                // Assumes Test size for i and j are equal
-//                for (int t = 0; t < ml.logs.get(i).tests.size(); t++){
-//                    if (isCorrect(ml, j, t)){
-//                            correct[j]++;
-//                            
-//                    }
-//                    
-//                    if(isCorrect(ml, j, t)&&isCorrect(ml, i, t))
-//                    	totalCorrect++;
-//                }
-//                
-//                // Find Covariance between Pairs
-//                double ex = correct[i] / (double)ml.logs.get(i).tests.size();
-//                double ey = correct[j] / (double)ml.logs.get(j).tests.size();
-//                double exy = totalCorrect / (double)Math.pow(ml.logs.get(i).tests.size(),2);
-//                pwCovariance[i][j] = cov(ex, ey, exy);
-//
-//                percentCompletej = ((double)(j) / (double)(ml.logs.size()))
-//                    * 100.0;
-//                if (percentComplete < 1){
-//                    System.out.print("\r");
-//                    System.out.printf(
-//                        "Progress: Current Method %d: %.2f %% " +
-//                        "Overall: %.2f %%",
-//                        i, percentCompletej, percentComplete
-//                        );
-//                } else {
-//                    System.out.printf("Overall Progress: %.2f %%\n",
-//                        percentComplete);
-//                }
-//            }
-//
-//            percentComplete = ((double)(i) / (double)(ml.logs.size()))
-//                * 100.0;
-
-            /*
-             * Secure Data by once completed, export CSV
-             * Export every log after it has been compared to all other logs
-             */
+        /*
+         * Secure Data by once completed, export CSV
+         * Export every log after it has been compared to all other logs
+         */
         
         if (export){
             exportCSV(pwCovariance, logDataNames, ml.name);
@@ -349,32 +290,11 @@ class Covariance{
     public static void main(String[] args){
         MultiLog ml = new MultiLog("logs", "BatchName", false); 
         double[][] m = process (ml, true);
-    
-        /* Print
-        for (int i = 0; i < m.length; i++){
-            for (int j = 0; j < m[i].length; j++){
-                System.out.printf("%e ", m[i][j]);
-            }
-            System.out.println();
-        }
-        //*/
 
         System.out.println("size = " + m.length + " by " + m[0].length);
         
         System.out.println("defectFiles = " + defectFiles.size());
         for(int i = 0; i < defectFiles.size(); i++)
             System.out.println(defectFiles.get(i));
-        //ml.print();
-        
-        /*  Test LogData Print Out
-        try{
-            LogData l = new LogData("Experimentsexp # 5-2016-12-18.txt");
-            l.print();
-        }
-        catch (InvalidLogFileType | InvalidLogStructure | ResultContainsNaN |
-                NotADirectory e){
-            e.printStackTrace();
-        }
-        */
     }
 }
