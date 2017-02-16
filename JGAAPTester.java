@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -37,10 +38,9 @@ import com.jgaap.util.Document;
 
 public class JGAAPTester {
 	static API jgaap = API.getInstance();
-	static int i = 0;
-	static int k = 0;
-	static String pathString = "H:/Java/workspace/JGAAPMods/logs3/";
-	static String expTarget = "H:/Java/workspace/JGAAPMods/logs3/";
+	static String userdirectory = System.getProperty("user.dir");
+	static String expTarget = userdirectory + "/logs3/";
+	static String logTarget = userdirectory + "/logs3/";
 	static PrintStream sys = System.out;
 	static PrintStream exp;
 
@@ -49,33 +49,55 @@ public class JGAAPTester {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		sys.println(userdirectory);
 		sys.println("Working");
-		//createExperimentCSV(new File("H:/Java/workspace/JGAAPMods/Texts/Mysteries"), .2);
-		//createExperimentCSV(new File("H:/Java/workspace/JGAAPMods/Texts/SciFi"), .2);
+		//correlationExperiment();
+		// createExperimentCSV(new
+		// File("H:/Java/workspace/JGAAPMods/Texts/Mysteries"), .2);
+		// createExperimentCSV(new
+		// File("H:/Java/workspace/JGAAPMods/Texts/SciFi"), .2);
+
+		// BasicConfigurator.configure();
+		//
+		// // loadAAACProblem("A");
+		// exp = new PrintStream((new File(expTarget + "exp.csv")));
+		// exp.println("Experiments");
+		// sanFranciscoMethods();
+		// exp.close();
+		// ExperimentEngine.runExperiment(expTarget + "expNGrams.csv", "English"); //
+		// log
+		// // file
+		// // generation
+//		 @SuppressWarnings("unchecked")
+//		 List<File> allFiles = new ArrayList<File>();
+//		 File dir = new File("tmp");
+//		 getFilesRecursive(dir, allFiles);
+//		 System.out.println(allFiles);
+//		 for (File f : allFiles)
+//			 Files.move(f, new File(logTarget + f.getName()));
+		 MultiLog ml = new MultiLog(logTarget,"scifi",false);
+		 double [][] results = Covariance.process(ml);
+	}
+
+	private static void correlationExperiment() throws IOException {
 		
-//		BasicConfigurator.configure();
-////
-////		// loadAAACProblem("A");
-//		exp = new PrintStream((new File(expTarget + "exp.csv")));
-//		exp.println("Experiments");
-//		sanFranciscoMethods();
-//		exp.close();
-//		ExperimentEngine.runExperiment(expTarget + "exp.csv", "English"); // log
-//																			// file
-//																			// generation
+		//BasicConfigurator.configure();
+		//ExperimentEngine.runExperiment("H:/Java/workspace/JGAAPMods/logs3/exp.csv", "English"); // log
+																			// file
+																			// generation
 //		@SuppressWarnings("unchecked")
 //		List<File> allFiles = new ArrayList<File>();
 //		File dir = new File("H:/Java/workspace/JGAAPMods/tmp");
 //		getFilesRecursive(dir, allFiles);
 //		System.out.println(allFiles);
 //		for (File f : allFiles)
-//			Files.move(f, new File(expTarget + f.getName()));
+//			Files.move(f, new File(logTarget + f.getName()));
+		MultiLog ml = new MultiLog(logTarget, "scifi", false);
+		double[][] results = Covariance.process(ml);
 
-		MultiLog ml = new MultiLog(expTarget,"scifi",false);
-		double [][] results = Covariance.process(ml, true);
 	}
 
-	private static void sanFranciscoMethods() {
+	private static void sanFranciscoMethods() throws FileNotFoundException {
 		int[] ns = { 3, 4, 6, 8 };
 		// String canonicizers = "Normalize Whitespace&Unify Case";
 
@@ -83,27 +105,34 @@ public class JGAAPTester {
 		eds.add(new NaiveWordEventDriver());
 		eds.add(new RareWordsEventDriver());
 		eds.add(new CharacterEventDriver());
+		eds.add(new CharacterNGramEventDriver());
 		for (int i = 0; i < 4; i++) {
 			CharacterNGramEventDriver ed = new CharacterNGramEventDriver();
 			ed.setParameter("N", ns[i]);
 			eds.add(ed);
 		}
-
 		List<DistanceFunction> dfs = new ArrayList<DistanceFunction>();
 		dfs.add(new IntersectionDistance());
 		dfs.add(new CosineDistance());
 		dfs.add(new ManhattanDistance());
-
+		int count = 0;
 		AnalysisDriver cd = new CentroidDriver();
 		AnalysisDriver smo = new WEKASMO();
 		for (EventDriver ed : eds) {
-			for (DistanceFunction df : dfs) {
-				exp.println(ed.displayName()+"&"+df.displayName() + ", " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + cd.displayName() + "," + df.displayName() + "," + "H:/Java/workspace/JGAAPMods/Texts/Scifi/load.csv");
-			}
+				for (DistanceFunction df : dfs) {
+						String eventString = ed.displayName()+(ed instanceof CharacterNGramEventDriver ? "|N:"+ed.getParameter("N"):"");
+						exp.println(",Normalize Whitespace" + '&' + "Unify Case," + eventString +"," + cd.displayName() + "," + df.displayName() + ","
+							+ "H:/Java/workspace/JGAAPMods/Texts/Scifi/load.csv");
+				}
 		}
 
 		for (EventDriver ed : eds) {
-				exp.println(ed.displayName()+ ", " + "Normalize Whitespace" + '&' + "Unify Case," + ed.displayName() + "," + smo.displayName() + "," + "," + "H:/Java/workspace/JGAAPMods/Texts/SciFi/load.csv");
+			String eventString = ed.displayName()+(ed instanceof CharacterNGramEventDriver ? "|N:"+ed.getParameter("N"):"");
+			exp.println(
+			",Normalize Whitespace & Unify Case," +
+		    ed.displayName() +
+		    eventString+ 
+		    "," + smo.displayName() + ",," + "H:/Java/workspace/JGAAPMods/Texts/SciFi/load.csv");
 		}
 
 	}
@@ -122,7 +151,7 @@ public class JGAAPTester {
 				if (i < works.length * testRatio)
 					output.println("," + path + ", Correct: " + cor);
 				else
-					output.println(cor + "," +path + ",");
+					output.println(cor + "," + path + ",");
 			}
 		}
 
@@ -146,6 +175,7 @@ public class JGAAPTester {
 		List<AnalysisDriver> ads = AnalysisDrivers.getAnalysisDrivers();// .subList(0,load);
 		List<DistanceFunction> dfs = DistanceFunctions.getDistanceFunctions();// .subList(0,load);
 		List<EventCuller> ecs = EventCullers.getEventCullers();// .subList(0,load);
+		int i=0;
 		for (AnalysisDriver ad : ads) {
 			if (ad instanceof NeighborAnalysisDriver)
 				for (DistanceFunction df : dfs) {
@@ -217,19 +247,6 @@ public class JGAAPTester {
 	}
 
 	private static void go() throws Exception {
-
-		jgaap.execute();
-		for (Document d : jgaap.getDocuments()) {
-			if (!d.isAuthorKnown()) {
-				File file = new File(pathString + (++i) + ".txt");
-				file.createNewFile();
-				if (i > k * 2)
-					sys.println(k = i);
-				PrintWriter br = new PrintWriter(file);
-				br.write(d.getResult());
-				br.close();
-			}
-		}
 
 	}
 
