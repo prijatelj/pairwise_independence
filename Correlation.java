@@ -18,7 +18,7 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.File;
 
-class Covariance {
+class Correlation {
 
 	public static ArrayList<String> defectFiles = new ArrayList<>();
 	/*
@@ -34,101 +34,13 @@ class Covariance {
 	 */
 
 	/**
-	 * Finds the pairwise independence matrix between all logs provided in the
+	 * Finds the pairwise correlation matrix between all logs provided in the
 	 * given MultiLog.
 	 * 
-	 * @param ml
-	 *            MultiLog with all logs of exact same test set.
-	 * @param export
-	 *            if true: exports matrix to .csv file; false: no export.
+	 * @param ml MultiLog with all logs of exact same test set.
 	 * @return 2d Double matrix where each row, col pair contains the respective
-	 *         independence value.
+	 * independence value.
 	 */
-	public static double[][] process(MultiLog ml, boolean export) {
-
-		System.out.println("Begin Processing MultiLog");
-		double percentComplete = 0, percentCompletej = 0;
-		/*
-		 * pwCovariance 2d Matrix of the covariance between pairs pwCorrelation
-		 * 2d Matrix of the correlation between pairs
-		 * 
-		 * incorrect stores how many incorrect for that log
-		 * 
-		 * correct stores how many correct for that log
-		 * 
-		 * checked indicates if the Log has been checked by correct and
-		 * incorrect. Needs only checked once
-		 *
-		 * ignore each log has a boolean value of to ignore or not in parallel
-		 * with it. Ignore if contains NaN results
-		 */
-		// double[][] pwCovariance =
-		// new double[ml.logs.size()][ml.logs.size()];
-		double[][] pwCorrelation = new double[ml.logs.size()][ml.logs.size()];
-		double sigX, sigY;
-		int[] incorrect = new int[ml.logs.size()];
-		int[] correct = new int[ml.logs.size()];
-		boolean[] checked = new boolean[ml.logs.size()];
-		boolean[] ignore = new boolean[ml.logs.size()];
-		int totalCorrect;
-
-		ArrayList<String> logDataNames = new ArrayList<>();
-
-		// for passing the to export . . .
-		for (int i = 0; i < ml.logs.size(); i++) {
-			logDataNames.add(ml.logs.get(i).name);
-		}
-
-		for (int i = 0; i < ml.logs.size(); i++) { // L
-			for (int t = 0; t < ml.logs.get(i).tests.size(); t++) {
-				if (isCorrect(ml, i, t)) {
-					correct[i]++;
-				}
-			}
-		}
-
-		for (int i = 0; i < ml.logs.size(); i++) { // L
-			for (int j = 0; j < ml.logs.size(); j++) { // L-1
-				if (j == i) {
-					// pwCovariance[i][j] = 1;
-					pwCorrelation[i][j] = 1;
-					continue;
-				}
-				totalCorrect = 0;
-
-				for (int t = 0; t < ml.logs.get(i).tests.size(); t++) {
-					if (isCorrect(ml, j, t) && isCorrect(ml, i, t))
-						totalCorrect++;
-				}
-				double n = (double) ml.logs.get(i).tests.size();
-
-				double ex = correct[i] / n;
-				double ey = correct[j] / n;
-				// TODO: Figure out with certainty what this denomenator should
-				// be.
-				double exy = totalCorrect / n;
-				// pwCovariance[i][j] = cov(ex, ey, exy);
-
-				// Compute Correlation : std. dev = sqrt(n * P * (1 - P))
-				sigX = Math.sqrt(n * ex * (1 - ex));
-				sigY = Math.sqrt(n * ey * (1 - ey));
-				pwCorrelation[i][j] = cov(ex, ey, exy) / (sigX * sigY);
-			}
-		}
-
-		/*
-		 * Secure Data by once completed, export CSV Export every log after it
-		 * has been compared to all other logs
-		 */
-
-		if (export) {
-			exportCSV(pwCorrelation, logDataNames, ml.name);
-		}
-
-		// return pwCovariance;
-		return pwCorrelation;
-	}
-
 	public static double[][] process(MultiLog ml) {
 		ArrayList<String> logDataNames = new ArrayList<>();
 		// for passing the to export . . .
